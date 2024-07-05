@@ -46,9 +46,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
+        let _deviceToken = deviceToken
+            .map { String(format: "%02.2hhx", $0) }
+            .joined()
+        Swift.print("deviceToken: ", _deviceToken)
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) async -> UIBackgroundFetchResult {
+        NotificationCenter.default.post(
+            name: Notification.Name.userInfo,
+            object: nil,
+            userInfo: userInfo
+        )
         
         return UIBackgroundFetchResult.newData
     }
@@ -63,7 +72,12 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
     // MARK: - UNUserNotificationCenterDelegate
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        _ = notification.request.content.userInfo
+        let userInfo = notification.request.content.userInfo
+        NotificationCenter.default.post(
+            name: Notification.Name.userInfo,
+            object: nil,
+            userInfo: userInfo
+        )
         return [.banner, .badge, .sound]
     }
     

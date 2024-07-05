@@ -9,6 +9,7 @@ import UIKit
 
 extension Notification.Name {
     static let fcmToken = Notification.Name("FCMToken")
+    static let userInfo = Notification.Name("UserInfo")
 }
 
 class ViewController: UIViewController {
@@ -22,7 +23,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHideNotification(_:)), name: Notification.Name.fcmToken, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveFCMToken(_:)), name: Notification.Name.fcmToken, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveUNNotification(_:)), name: Notification.Name.userInfo, object: nil)
         sendUserNotificationButton.addTarget(self, action: #selector(sendNotiButtonTapped(_:)), for: .touchUpInside)
     }
     
@@ -31,13 +33,16 @@ class ViewController: UIViewController {
     }
     
     @objc
-    func keyboardWillHideNotification(_ notification: Notification) {
+    func didReceiveFCMToken(_ notification: Notification) {
+        if let token = notification.userInfo?["token"] as? String {
+            tokenTextView.text = token
+        }
+    }
+    
+    @objc
+    func didReceiveUNNotification(_ notification: Notification) {
         if let userInfo = notification.userInfo {
             userInfoTextView.text = userInfo.description
-            
-            if let token = userInfo["token"] as? String {
-                tokenTextView.text = token
-            }
         }
     }
     
