@@ -72,12 +72,19 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
     // MARK: - UNUserNotificationCenterDelegate
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        let userInfo = notification.request.content.userInfo
+        let title = notification.request.content.title
+        let body = notification.request.content.body
+        
+        var userInfo = notification.request.content.userInfo
+        userInfo["title"] = title
+        userInfo["body"] = body
+        
         NotificationCenter.default.post(
             name: Notification.Name.userInfo,
             object: nil,
             userInfo: userInfo
         )
+        
         return [.banner, .badge, .sound]
     }
     
